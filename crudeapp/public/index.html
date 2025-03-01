@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Generation</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css"> 
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Lead Generation Form</h2>
+        <form id="leadForm" action="/submit" method="POST" class="mt-4">
+            <div class="form-group">
+                <label for="name">Customer Name:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="mobile">Mobile No:</label>
+                <input type="tel" class="form-control" id="mobile" name="mobile" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email ID:</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="services">List of Services:</label>
+                <select id="services" name="service" class="form-control" required>
+                    <option value="GST Filing">GST Filing</option>
+                    <option value="Company Registration">Company Registration</option>
+                    <option value="Tax Consultancy">Tax Consultancy</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="servicePrice">Price:</label>
+                <input type="number" class="form-control" id="servicePrice" name="price" placeholder="Enter price" min="0" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="note">Note:</label>
+                <textarea id="note" name="note" class="form-control" rows="3" placeholder="Enter additional notes..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">Submit</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
