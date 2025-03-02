@@ -1,11 +1,11 @@
 const express = require('express');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 
 const app = express();
 const port = 3000;
-
+require('dotenv').config();
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public')); 
@@ -15,6 +15,11 @@ app.use(session({
     saveUninitialized: true
 }));
 
+// console.log('Connecting to MySQL with the following details:');
+// console.log(`Host: ${process.env.MYSQLHOST}`);
+// console.log(`Port: ${process.env.MYSQLPORT}`);
+// console.log(`:User  ${process.env.MYSQLUSER}`);
+// console.log(`Database: ${process.env.MYSQLDATABASE}`);
 // MySQL Connection
     const db = mysql.createConnection({
         host: process.env.MYSQLHOST,
@@ -25,7 +30,9 @@ app.use(session({
     });
 
 db.connect(err => {
-    if (err) throw err;
+    if (err) {
+        console.log("Db ERROR")
+        throw err;}
     console.log('MySQL Connected...');
 });
 
@@ -37,6 +44,22 @@ const adminUser   = {
 
 // Submit Lead
 app.post('/submit', (req, res) => {
+    db.query(`
+    CREATE TABLE IF NOT EXISTS leads (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        mobile VARCHAR(15) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        service VARCHAR(255) NOT NULL,
+        price DECIMAL(10, 2) NOT NULL,
+        note TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+`,(error, results) => {
+    if (error) throw error;
+    console.log('Leads table created successfully');
+});
+    
     const { name, mobile, email, service, price, note } = req.body;
     const sql = 'INSERT INTO leads (name, mobile, email, service, price, note) VALUES (?, ?, ?, ?, ?, ?)';
     db.query(sql, [name, mobile, email, service, price, note], (err, result) => {
