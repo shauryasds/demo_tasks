@@ -15,6 +15,9 @@ app.use(session({
     saveUninitialized: true
 }));
 
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
 
 
 // console.log('Connecting to MySQL with the following details:');
