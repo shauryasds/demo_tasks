@@ -15,6 +15,8 @@ app.use(session({
     saveUninitialized: true
 }));
 
+
+
 // console.log('Connecting to MySQL with the following details:');
 // console.log(`Host: ${process.env.MYSQLHOST}`);
 // console.log(`Port: ${process.env.MYSQLPORT}`);
@@ -41,8 +43,7 @@ const adminUser   = {
     username: 'admin',
     password: 'admin123'
 };
-
-// Submit Lead
+ 
 app.post('/submit', (req, res) => {
     db.query(`
     CREATE TABLE IF NOT EXISTS leads (
