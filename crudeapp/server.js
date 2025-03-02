@@ -16,12 +16,13 @@ app.use(session({
 }));
 
 // MySQL Connection
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'lead_generation'
-});
+    const db = mysql.createConnection({
+        host: process.env.MYSQLHOST,
+        port: process.env.MYSQLPORT,
+        user: process.env.MYSQLUSER,
+        password: process.env.MYSQLPASSWORD,
+        database: process.env.MYSQLDATABASE
+    });
 
 db.connect(err => {
     if (err) throw err;
