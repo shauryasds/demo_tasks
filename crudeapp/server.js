@@ -38,7 +38,8 @@ const db = mysql.createConnection({
 });
 
 db.connect(err => {
-  if (err) throw err;
+  if (err){
+  console.log(err);return;}
   console.log('MySQL Connected...');
   
   // Create tables if not exists
@@ -65,7 +66,8 @@ db.connect(err => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 `, (error) => {
-    if (error) throw error;
+    if (error) {
+    console.log(error);return }
     console.log('Leads table verified');
 });
 });
@@ -146,7 +148,9 @@ const adminCSS = `
 // Dashboard Route
 app.get('/dashboard', requireAuth, (req, res) => {
   db.query('SELECT * FROM leads WHERE is_customer = FALSE', (err, leads) => {
-    if (err) throw err;
+    if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+  
+  return;}
     // console.log(leads[0].services)
     res.send(`
       <!DOCTYPE html>
@@ -250,7 +254,9 @@ app.post('/submit', (req, res) => {
 // Customer Conversion Routes
 app.get('/convert-customer/:id', requireAuth, (req, res) => {
     db.query('SELECT * FROM leads WHERE id = ?', [req.params.id], (err, result) => {
-      if (err) throw err;
+      if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+  
+  return;}
       const lead = result[0];
       
       res.send(`
@@ -343,16 +349,18 @@ app.get('/convert-customer/:id', requireAuth, (req, res) => {
     };
 
     db.query('UPDATE leads SET ? WHERE id = ?', [updateData, req.params.id], (err) => {
-        if (err) throw err;
-        res.redirect('/dashboard');
+      if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+  
+      return;} res.redirect('/dashboard');
     });
 });
   
   // Customers List Route
   app.get('/customers', requireAuth, (req, res) => {
     db.query('SELECT * FROM leads WHERE is_customer = TRUE', (err, customers) => {
-      if (err) throw err;
-      console.log(customers)
+      if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+  
+  return;}console.log(customers)
       res.send(`
         <!DOCTYPE html>
         <html lang="en">
@@ -393,7 +401,7 @@ app.get('/convert-customer/:id', requireAuth, (req, res) => {
                   <td>${customer.assigned_to}</td>
                   <td>${new Date(customer.delivery_date).toLocaleDateString()}</td>
                   <td>
-        <a href="https://crudeapplication.vercel.app/documents/${customer.id}" target="_blank">
+        <a href="http://localhost:3000/documents/${customer.id}" target="_blank">
             ${JSON.parse(customer.documents).length} documents
         </a>
     </td>
@@ -414,8 +422,9 @@ app.get('/convert-customer/:id', requireAuth, (req, res) => {
     const customerId = req.params.customerId;
 
     db.query('SELECT documents FROM leads WHERE id = ?', [customerId], (err, results) => {
-        if (err) throw err;
-
+      if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+  
+      return;}
         if (results.length > 0) {
             const documents = JSON.parse(results[0].documents);
             res.send(`
@@ -648,8 +657,9 @@ app.post('/edit/:id', requireAuth, (req, res) => {
   // Delete Route
   app.get('/delete/:id', requireAuth, (req, res) => {
     db.query('DELETE FROM leads WHERE id = ?', [req.params.id], (err) => {
-      if (err) throw err;
-      res.redirect('back');
+      if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+  
+  return;} res.redirect('back');
     });
   });
   
