@@ -28,49 +28,62 @@ app.use(session({
   saveUninitialized: true
 }));
 
-// Database connection
-const db = mysql.createConnection({
-  host: process.env.MYSQLHOST,
-  port: process.env.MYSQLPORT,
-  user: process.env.MYSQLUSER,
-  password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQLDATABASE
-});
+let db;
 
-db.connect(err => {
-  if (err){
-  console.log(err);return;}
-  console.log('MySQL Connected...');
-  
-  // Create tables if not exists
-  db.query(`
-    CREATE TABLE IF NOT EXISTS leads (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        customer_name VARCHAR(255) NOT NULL,
-        mobile VARCHAR(15) NOT NULL,
-        father_name VARCHAR(255),
-        spouse_name VARCHAR(255),
-        mother_name VARCHAR(255),
-        aadhar VARCHAR(20),
-        pan VARCHAR(20),
-        company_name VARCHAR(255),
-        email VARCHAR(255) NOT NULL,
-        gst VARCHAR(20),
-        cin VARCHAR(20),
-        services JSON NOT NULL,
-        note TEXT,
-        is_customer BOOLEAN DEFAULT FALSE,
-        documents TEXT,
-        assigned_to VARCHAR(255),
-        delivery_date DATE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-`, (error) => {
-    if (error) {
-    console.log(error);return }
-    console.log('Leads table verified');
-});
-});
+const connectDB = () => {
+  db = mysql.createConnection({
+    host: process.env.MYSQLHOST,
+    port: process.env.MYSQLPORT,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE
+  });
+
+  db.connect(err => {
+    if (err) {
+      console.error('Database connection failed:', err);
+      // Retry  2 seconds
+      setTimeout(connectDB, 2000);
+      return;
+    }
+    console.log('MySQL Connected...');
+
+    // Create tables if not exists
+    db.query(`
+      CREATE TABLE IF NOT EXISTS leads (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          customer_name VARCHAR(255) NOT NULL,
+          mobile VARCHAR(15) NOT NULL,
+          father_name VARCHAR(255),
+          spouse_name VARCHAR(255),
+          mother_name VARCHAR(255),
+          aadhar VARCHAR(20),
+          pan VARCHAR(20),
+          company_name VARCHAR(255),
+          email VARCHAR(255) NOT NULL,
+          gst VARCHAR(20),
+          cin VARCHAR(20),
+          services JSON NOT NULL,
+          note TEXT,
+          is_customer BOOLEAN DEFAULT FALSE,
+          documents TEXT,
+          assigned_to VARCHAR(255),
+          delivery_date DATE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `, (error) => {
+      if (error) {
+        console.error('Error creating table:', error);
+        return;
+      }
+      console.log('Leads table verified');
+    });
+  });
+};
+
+connectDB();
+
+
 
 // Admin credentials
 const adminUser = {
@@ -148,7 +161,7 @@ const adminCSS = `
 // Dashboard Route
 app.get('/dashboard', requireAuth, (req, res) => {
   db.query('SELECT * FROM leads WHERE is_customer = FALSE', (err, leads) => {
-    if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+    if (err){res.send("<h1>Sorry, Our Servers are busy! please Refresh</h1>");
   
   return;}
     // console.log(leads[0].services)
@@ -213,7 +226,7 @@ app.get('/dashboard', requireAuth, (req, res) => {
 
 app.post('/submit', (req, res) => {
     const { customer, services } = req.body;
-    console.log(req.body)
+    console.log(customer, services)
     // Validate required fields
     if (!customer.customerName || !customer.mobile || !customer.email) {
         return res.status(400).json({ message: 'Missing required fields' });
@@ -254,7 +267,7 @@ app.post('/submit', (req, res) => {
 // Customer Conversion Routes
 app.get('/convert-customer/:id', requireAuth, (req, res) => {
     db.query('SELECT * FROM leads WHERE id = ?', [req.params.id], (err, result) => {
-      if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+      if (err){res.send("<h1>Sorry, Our Servers are busy! please Refresh</h1>");
   
   return;}
       const lead = result[0];
@@ -349,7 +362,7 @@ app.get('/convert-customer/:id', requireAuth, (req, res) => {
     };
 
     db.query('UPDATE leads SET ? WHERE id = ?', [updateData, req.params.id], (err) => {
-      if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+      if (err){res.send("<h1>Sorry, Our Servers are busy! please Refresh</h1>");
   
       return;} res.redirect('/dashboard');
     });
@@ -358,7 +371,7 @@ app.get('/convert-customer/:id', requireAuth, (req, res) => {
   // Customers List Route
   app.get('/customers', requireAuth, (req, res) => {
     db.query('SELECT * FROM leads WHERE is_customer = TRUE', (err, customers) => {
-      if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+      if (err){res.send("<h1>Sorry, Our Servers are busy! please Refresh</h1>");
   
   return;}console.log(customers)
       res.send(`
@@ -422,7 +435,7 @@ app.get('/convert-customer/:id', requireAuth, (req, res) => {
     const customerId = req.params.customerId;
 
     db.query('SELECT documents FROM leads WHERE id = ?', [customerId], (err, results) => {
-      if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+      if (err){res.send("<h1>Sorry, Our Servers are busy! please Refresh</h1>");
   
       return;}
         if (results.length > 0) {
@@ -657,7 +670,7 @@ app.post('/edit/:id', requireAuth, (req, res) => {
   // Delete Route
   app.get('/delete/:id', requireAuth, (req, res) => {
     db.query('DELETE FROM leads WHERE id = ?', [req.params.id], (err) => {
-      if (err){res.send("<h1>Unstable Internet Connection !! please Refresh</h1>");
+      if (err){res.send("<h1>Sorry, Our Servers are busy! please Refresh</h1>");
   
   return;} res.redirect('back');
     });
