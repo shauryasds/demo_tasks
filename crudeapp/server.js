@@ -414,7 +414,7 @@ app.get('/convert-customer/:id', requireAuth, (req, res) => {
                   <td>${customer.assigned_to}</td>
                   <td>${new Date(customer.delivery_date).toLocaleDateString()}</td>
                   <td>
-        <a href="http://localhost:3000/documents/${customer.id}" target="_blank">
+        <a href="https://crudeapplication.vercel.app/documents/${customer.id}" target="_blank">
             ${JSON.parse(customer.documents).length} documents
         </a>
     </td>
